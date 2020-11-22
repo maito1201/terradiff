@@ -1,5 +1,6 @@
 FROM node:15.2.1-alpine
-WORKDIR /myapp
+WORKDIR /app
 COPY package.json ./
-RUN npm install && npm install -g @vue/cli
+COPY yarn.lock ./
+RUN yarn install && yarn global add @vue/cli
 

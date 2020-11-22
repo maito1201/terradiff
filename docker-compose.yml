@@ -2,12 +2,12 @@ version: '3'
 volumes:
   vendor:
 services:
-  app: &app
+  app:
     build: .
-    command: sh -c "npm run serve"
+    command: sh -c "yarn --force && yarn run serve"
     volumes:
-      - .:/myapp
-      - /myapp/node_modules
+      - .:/app
+      - /app/node_modules
     ports:
       - "8000:8080"
  
