@@ -1,8 +1,10 @@
-<template>
+<template style="height: 100%">
   <div id="app">
+    <Navbar/>
     <div class="tf-wrapper">
-      <div class="tf-input-area">
-        <textarea class="tf-text-area" v-model="input" placeholder="add multiple lines"></textarea>
+      <div class="tf-input-area form-group">
+          <label for="tf-input">Paste your result of `terraform plan`</label>
+          <textarea id="tf-input" class="tf-text-area form-control" v-model="input" placeholder="add multiple lines"></textarea>
       </div>
       <div class="result-area">
         <span v-html="parsedInput"></span>
@@ -12,6 +14,7 @@
 </template>
 
 <script>
+import Navbar from './components/Navbar.vue'
 let template = 
 `# aws_something_to_create will be created
   + resource "aws_something" "my-something" {
@@ -39,6 +42,9 @@ let template =
 import parseTf from "./service/parsetf.js"
 export default {
   name: 'App',
+  components: {
+    Navbar
+  },
   data: function (){
     return {
       input: template,
@@ -53,28 +59,40 @@ export default {
 </script>
 
 <style>
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  background-color: lightgray;
+  height: 100%;
 }
 div.tf-wrapper {
   display: flex;
+  padding: 10px;
 }
 div.tf-input-area {
   min-height: 800px;
   width: 50%;
+  padding: 0 10px;
 }
 div.result-area {
+  margin-top: 20px;
   min-height: 800px;
   width: 50%;
   text-align: left;
 }
 textarea.tf-text-area {
-  width: 90%;
   height: 100%;
   min-height: 800px;
 }
@@ -82,6 +100,12 @@ textarea.tf-text-area {
 pre.tf-result{
   margin: 0;
   font-size: 16px;
+  border-bottom: dashed 1px ghostwhite;
+  background-color: white;
+}
+
+pre.tf-result--resource-info{
+  background-color: floralwhite;
 }
 
 pre.tf-title{
@@ -89,15 +113,34 @@ pre.tf-title{
   font-weight: bold;
   font-size: 20px;
 }
-pre.tf-add{
-  background-color: green;
+
+div.tf-div {
+  margin: 10px 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: solid 4px dimgray;
 }
 
-pre.tf-inplace{
-  background-color: yellow;
+span.tf-title {
+  display: block;
+  font-weight: bold;
+  font-size: 20px;
+  border: 5px solid #dee2e6;
+  border-radius: 8px 8px 0 0;
+  padding: 3px;
+  background-color: white;
 }
 
-pre.tf-destroy{
-  background-color: red;
+span.tf-title--create{
+  border-color: #28a745;
+  color: #28a745;
+}
+span.tf-title--destroy{
+  border-color: #dc3545;
+  color: #dc3545;
+}
+span.tf-title--update{
+  border-color: #ffc107;
+  color: #ffc107;
 }
 </style>

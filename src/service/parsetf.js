@@ -1,26 +1,52 @@
 const TF_CLASS_BY_PREFIX = {
     "#": "tf-title",
-    "+": "tf-add",
-    "-": "tf-destroy",
-    "~": "tf-inplace",
+    "+": "bg-success",
+    "-": "bg-danger",
+    "~": "bg-warning",
+}
+
+const NEST_OPEN_TOKEN = {
+    "[": true,
+    "{": true
+}
+
+const NEST_CLOSE_TOKEN = {
+    "]": true,
+    "}": true
 }
 
 let nestInfo = []
 export default function parseTf(input){
+    let renderStarted = false
     let inputArray = input.split("\n")
     let parsedInput = inputArray.map(function(input) {
         const prefix = getPrefix(input)
-        const suffix = input.charAt(input.length - 1)
-        let cssClass = TF_CLASS_BY_PREFIX[prefix]
-        if (suffix == "{") {
-            nestInfo.push(cssClass)
-        } else if (suffix == "}") {
-            cssClass = nestInfo.pop()
+        const suffix = getSuffix(input)
+
+        if (!renderStarted && prefix == "#") {
+            renderStarted = true
+        } else if (!prefix && !suffix && renderStarted) {
+            renderStarted = false
+            return "</div>"
         }
-        if (cssClass == undefined) cssClass = ""
-        return `<pre class="tf-result ${cssClass}">${input}</pre>`
+
+        if (prefix == "#") {
+            return renderStarted? "</div>" + titleHTML(input) : titleHTML(input)
+        }
+
+        let cssClass = ""
+        if (renderStarted) {
+            cssClass = /resource "/.test(input)? "tf-result--resource-info" : TF_CLASS_BY_PREFIX[prefix]
+            if (NEST_OPEN_TOKEN[suffix]) {
+                nestInfo.push(cssClass)
+            } else if (NEST_CLOSE_TOKEN[prefix]) {
+                cssClass = nestInfo.pop()
+            }
+            if (cssClass == undefined) cssClass = ""
+            return `<pre class="tf-result ${cssClass}">${input}</pre>`
+        }
+        return ""
     });
-    console.log(parsedInput.join(""))
     return parsedInput.join("")
 }
 
@@ -32,4 +58,30 @@ function getPrefix (input) {
         }
     }
     return ""
+}
+
+function getSuffix (input) {
+    for (let index = input.length - 1; index >= 0; index--) {
+        const c = input.charAt(index);
+        if (c != ",") {
+            return c
+        }
+    }
+    return ""
+}
+
+function titleHTML(input) {
+    let cssClass = ""
+    switch( true ){
+    case /will be created/.test(input):
+        cssClass = "tf-title tf-title--create"
+        break
+    case /will be updated in-place/.test(input):
+        cssClass = "tf-title tf-title--update"
+        break
+    case /will be destroyed/.test(input):
+        cssClass = "tf-title tf-title--destroy"
+        break
+    }
+    return `<div class="tf-div"><span class="${cssClass}">${input}</span>`
 }
