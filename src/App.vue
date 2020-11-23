@@ -4,11 +4,12 @@
     <div class="tf-wrapper">
       <div class="tf-input-area form-group">
           <label for="tf-input">Paste your result of `terraform plan`</label>
-          <textarea id="tf-input" class="tf-text-area form-control" v-model="input" placeholder="add multiple lines"></textarea>
+          <div class="input-group button-wrapper">
+            <button class="btn btn-outline-info clear-button" @click="clearInput">clear</button>
+          </div>
+          <textarea id="tf-input" class="tf-text-area form-control" v-model="input" placeholder="Paste your result of `terraform plan`"></textarea>
       </div>
-      <div class="result-area">
-        <span v-html="parsedInput"></span>
-      </div>
+      <div class="result-area" v-html="parsedInput"></div>
     </div>
   </div>
 </template>
@@ -34,7 +35,7 @@ let template =
     }
 
 # aws_something_to_destroy will be destroyed
-  - resource "aws_something_to_delete" "my-something" {
+  - resource "aws_something" "my-something" {
       - id                  = "1" -> null
       - name                = "my-something" -> null
       - tags                = {} -> null
@@ -53,6 +54,11 @@ export default {
   computed: {
     parsedInput: function (){
       return parseTf(this.input)
+    }
+  },
+  methods: {
+    clearInput: function (){
+      this.input = ""
     }
   }
 }
@@ -74,7 +80,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  background-color: lightgray;
   height: 100%;
 }
 div.tf-wrapper {
@@ -87,7 +92,7 @@ div.tf-input-area {
   padding: 0 10px;
 }
 div.result-area {
-  margin-top: 20px;
+  margin-top: 65px;
   min-height: 800px;
   width: 50%;
   text-align: left;
@@ -104,8 +109,20 @@ pre.tf-result{
   background-color: white;
 }
 
-pre.tf-result--resource-info{
+pre.tf-result--resource-info {
   background-color: floralwhite;
+}
+
+pre.tf-result--add {
+  background-color: #dcffe4;
+}
+
+pre.tf-result--update {
+  background-color: #fff6b3;
+}
+
+pre.tf-result--destroy {
+  background-color: #ffeef0;
 }
 
 pre.tf-title{
@@ -118,7 +135,7 @@ div.tf-div {
   margin: 10px 0;
   border-radius: 14px;
   overflow: hidden;
-  border: solid 4px dimgray;
+  border: solid 4px gray;
 }
 
 span.tf-title {
@@ -132,15 +149,18 @@ span.tf-title {
 }
 
 span.tf-title--create{
-  border-color: #28a745;
-  color: #28a745;
+  border-color: #56d974;
+  color: #56d974;
 }
 span.tf-title--destroy{
-  border-color: #dc3545;
-  color: #dc3545;
+  border-color: #fc5e6d;
+  color: #fc5e6d;
 }
 span.tf-title--update{
-  border-color: #ffc107;
-  color: #ffc107;
+  border-color: #f0cd62;
+  color: #f0cd62;
+}
+.button-wrapper{
+  margin: 0 0 5px 0;
 }
 </style>

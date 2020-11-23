@@ -1,7 +1,7 @@
 const TF_CLASS_BY_PREFIX = {
-    "+": "bg-success",
-    "-": "bg-danger",
-    "~": "bg-warning",
+    "+": "tf-result--add",
+    "-": "tf-result--destroy",
+    "~": "tf-result--update",
 }
 
 const NEST_OPEN_TOKEN = {
