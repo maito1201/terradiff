@@ -1,5 +1,4 @@
 const TF_CLASS_BY_PREFIX = {
-    "#": "tf-title",
     "+": "bg-success",
     "-": "bg-danger",
     "~": "bg-warning",
@@ -23,14 +22,14 @@ export default function parseTf(input){
         const prefix = getPrefix(input)
         const suffix = getSuffix(input)
 
-        if (!renderStarted && prefix == "#") {
+        if (!renderStarted && prefix == "#" && /will be/.test(input)) {
             renderStarted = true
-        } else if (!prefix && !suffix && renderStarted) {
+        } else if (!prefix && !suffix && renderStarted && /will be/.test(input)) {
             renderStarted = false
             return "</div>"
         }
 
-        if (prefix == "#") {
+        if (prefix == "#" && /will be/.test(input)) {
             return renderStarted? "</div>" + titleHTML(input) : titleHTML(input)
         }
 
@@ -71,7 +70,7 @@ function getSuffix (input) {
 }
 
 function titleHTML(input) {
-    let cssClass = ""
+    let cssClass = "tf-title"
     switch( true ){
     case /will be created/.test(input):
         cssClass = "tf-title tf-title--create"
