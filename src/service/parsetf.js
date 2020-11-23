@@ -27,6 +27,8 @@ export default function parseTf(input){
         } else if (!prefix && !suffix && renderStarted && /will be/.test(input)) {
             renderStarted = false
             return "</div>"
+        } else if (!prefix && !suffix) {
+            renderStarted = false
         }
 
         if (prefix == "#" && /will be/.test(input)) {
