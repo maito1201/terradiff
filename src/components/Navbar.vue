@@ -1,7 +1,6 @@
 <template>
 <div>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <img src="../assets/logo.png" style="width: 40px;">
     <a class="navbar-brand" href="#">terradiff</a>
     <!-- Button trigger modal -->
   <button type="button" class="btn btn-outline-secondary about-button" @click="toggleModal">
