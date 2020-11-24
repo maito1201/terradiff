@@ -4,15 +4,16 @@
         <div class="input-group button-wrapper">
           <button class="btn btn-outline-info clear-button" @click="clearInput">clear</button>
         </div>
-        <textarea id="tf-input" class="tf-text-area form-control" v-model="input" placeholder="Paste your result of `terraform plan`"></textarea>
+        <textarea id="tf-input" class="tf-text-area form-control" v-model="input" :placeholder="template"></textarea>
     </div>
     <div class="result-area" v-html="parsedInput"></div>
   </div>
 </template>
 
 <script>
-let template = 
-`# aws_something_to_create will be created
+const TEMPLATE = 
+`Paste your result of "terraform plan"
+# aws_something_to_create will be created
   + resource "aws_something" "my-something" {
       + arn                              = (known after apply)
       + tags                             = {
@@ -36,16 +37,20 @@ let template =
       - tags                = {} -> null
     }`
 import parseTf from "../service/parsetf.js"
+import sanitizeInput from "../service/sanitizer.js"
 export default {
   name: 'Main',
   data: function (){
     return {
-      input: template,
+      input: "",
+      template: TEMPLATE
     }
   },
   computed: {
     parsedInput: function (){
-      return parseTf(this.input)
+      if (this.input == "") return parseTf(TEMPLATE)
+      const sanitized = sanitizeInput(this.input)
+      return parseTf(sanitized)
     }
   },
   methods: {
