@@ -70,17 +70,20 @@ div.tf-input-area {
   min-height: 800px;
   width: 50%;
   padding: 0 10px;
+  overflow: hidden;
+  resize: horizontal;
 }
 div.result-area {
   margin-top: 35px;
   min-height: 800px;
-  width: 50%;
+  min-width: 50%;
   text-align: left;
 }
 textarea.tf-text-area {
   height: 100%;
   min-height: 800px;
   max-height: 95%;
+  overflow: hidden;
 }
 
 pre.tf-result{
@@ -88,6 +91,8 @@ pre.tf-result{
   font-size: 16px;
   border-bottom: dashed 1px ghostwhite;
   background-color: white;
+  overflow: visible;
+  padding: 0 20px 0 0;
 }
 
 pre.tf-result--resource-info {
