@@ -6,7 +6,21 @@
         </div>
         <textarea id="tf-input" class="tf-text-area form-control" v-model="input" :placeholder="template"></textarea>
     </div>
-    <div class="result-area" v-html="parsedInput"></div>
+    <div>
+      <div class="input-group mb-2">
+        <div class="input-group-prepend">
+          <div class="input-group-text">show</div>
+        </div>
+        <select v-model="select" @change="showSelected" class="form-control">
+          <option>all</option>
+          <option>created</option>
+          <option>updated</option>
+          <option>destroy</option>
+        </select>
+      </div>
+      <div class="result-area" v-html="parsedInput">
+      </div>
+    </div>
   </div>
 </template>
 
@@ -43,19 +57,43 @@ export default {
   data: function (){
     return {
       input: "",
-      template: TEMPLATE
+      template: TEMPLATE,
+      select: "all",
+      showCreated: true,
+      showUpdated: true,
+      showDestroy: true
     }
   },
   computed: {
     parsedInput: function (){
-      if (this.input == "") return parseTf(TEMPLATE)
+      if (this.input == "") return parseTf(TEMPLATE, this.showCreated, this.showUpdated, this.showDestroy)
       const sanitized = sanitizeInput(this.input)
-      return parseTf(sanitized)
+      return parseTf(sanitized, this.showCreated, this.showUpdated, this.showDestroy)
     }
   },
   methods: {
     clearInput: function (){
       this.input = ""
+    },
+    showSelected: function (){
+      console.log("debug",this.select)
+      if (this.select == "created") {
+        this.showCreated = true
+        this.showUpdated = false
+        this.showDestroy = false
+      } else if (this.select == "updated") {
+        this.showCreated = false
+        this.showUpdated = true
+        this.showDestroy = false
+      } else if (this.select == "destroy") {
+        this.showCreated = false
+        this.showUpdated = false
+        this.showDestroy = true
+      } else {
+        this.showCreated = true
+        this.showUpdated = true
+        this.showDestroy = true
+      }
     }
   }
 }
@@ -74,7 +112,6 @@ div.tf-input-area {
   resize: horizontal;
 }
 div.result-area {
-  margin-top: 35px;
   min-height: 800px;
   min-width: 50%;
   text-align: left;
@@ -122,6 +159,10 @@ div.tf-div {
   border-radius: 14px;
   overflow: hidden;
   border: solid 4px gray;
+}
+
+div.tf-div-hidden {
+  display: none;
 }
 
 span.tf-title {

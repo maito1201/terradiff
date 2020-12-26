@@ -15,7 +15,7 @@ const NEST_CLOSE_TOKEN = {
 }
 
 let nestInfo = []
-export default function parseTf(input){
+export default function parseTf(input, showCreated, showUpdated, showDestroy){
     let renderStarted = false
     let inputArray = input.split("\n")
     let parsedInput = inputArray.map(function(input) {
@@ -32,7 +32,8 @@ export default function parseTf(input){
         }
 
         if (prefix == "#" && /will be/.test(input)) {
-            return renderStarted? "</div>" + titleHTML(input) : titleHTML(input)
+            return renderStarted? "</div>" + titleHTML(input, showCreated, showUpdated, showDestroy)
+                : titleHTML(input, showCreated, showUpdated, showDestroy)
         }
 
         let cssClass = ""
@@ -71,18 +72,22 @@ function getSuffix (input) {
     return ""
 }
 
-function titleHTML(input) {
+function titleHTML(input, showCreated, showUpdated, showDestroy) {
     let cssClass = "tf-title"
+    let wrapperClass = "tf-div"
     switch( true ){
     case /will be created/.test(input):
         cssClass = "tf-title tf-title--create"
+        wrapperClass = showCreated? "tf-div" : "tf-div-hidden"
         break
     case /will be updated in-place/.test(input):
         cssClass = "tf-title tf-title--update"
+        wrapperClass = showUpdated? "tf-div" : "tf-div-hidden"
         break
     case /will be destroyed/.test(input):
         cssClass = "tf-title tf-title--destroy"
+        wrapperClass = showDestroy? "tf-div" : "tf-div-hidden"
         break
     }
-    return `<div class="tf-div"><span class="${cssClass}">${input}</span>`
+    return `<div class="${wrapperClass}"><span class="${cssClass}">${input}</span>`
 }
