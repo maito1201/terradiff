@@ -24,10 +24,10 @@ export default function parseTf(input, showCreated, showUpdated, showDestroy){
 
         if (!renderStarted && prefix == "#" && /will be/.test(input)) {
             renderStarted = true
-        } else if (!prefix && !suffix && renderStarted && /will be/.test(input)) {
+        } else if (!prefix && !suffix && renderStarted && /will be/.test(input) && !nestInfo.length) {
             renderStarted = false
             return "</div>"
-        } else if (!prefix && !suffix) {
+        } else if (!prefix && !suffix && !nestInfo.length) {
             renderStarted = false
         }
 
@@ -35,6 +35,8 @@ export default function parseTf(input, showCreated, showUpdated, showDestroy){
             return renderStarted? "</div>" + titleHTML(input, showCreated, showUpdated, showDestroy)
                 : titleHTML(input, showCreated, showUpdated, showDestroy)
         }
+
+        if (input == "") return ""
 
         let cssClass = ""
         if (renderStarted) {
