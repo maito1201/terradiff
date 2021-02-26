@@ -1,26 +1,37 @@
 <template>
   <div class="tf-wrapper">
-    <div class="tf-input-area form-group">
+    <column-gutter
+      :column="2"
+      :width="'100vw'"
+      :height="this.resultHeight"
+      :gutter-sizes="['4px', '1rem', '1em']"
+      :colors="['#623ce4']"
+      :column-sizes="[1,1]"
+    >
+      <div slot="col-0" class="tf-input-area form-group">
         <div class="input-group button-wrapper">
           <button class="btn btn-outline-info clear-button" @click="clearInput">clear</button>
         </div>
-        <textarea id="tf-input" class="tf-text-area form-control" v-model="input" :placeholder="template"></textarea>
-    </div>
-    <div>
-      <div class="input-group mb-2">
-        <div class="input-group-prepend">
-          <div class="input-group-text">show</div>
+        <textarea id="tf-input" class="tf-text-area form-control" v-model="input" @input="resizeBorder" :placeholder="template"></textarea>
+      </div>
+      <div slot="col-1">
+        <div ref="right" style="position:absolute">
+          <div class="input-group mb-2 ml-2">
+            <div class="input-group-prepend">
+              <div class="input-group-text">show</div>
+            </div>
+            <select v-model="select" @change="showSelected" class="form-control">
+              <option>all</option>
+              <option>created</option>
+              <option>updated</option>
+              <option>destroy</option>
+            </select>
+          </div>
+          <div class="result-area ml-2" v-html="parsedInput">
+          </div>
         </div>
-        <select v-model="select" @change="showSelected" class="form-control">
-          <option>all</option>
-          <option>created</option>
-          <option>updated</option>
-          <option>destroy</option>
-        </select>
       </div>
-      <div class="result-area" v-html="parsedInput">
-      </div>
-    </div>
+    </column-gutter>
   </div>
 </template>
 
@@ -52,6 +63,8 @@ const TEMPLATE =
     }`
 import parseTf from "../service/parsetf.js"
 import sanitizeInput from "../service/sanitizer.js"
+import { ColumnGutter } from 'vue-gutter-resize'
+import 'vue-gutter-resize/dist/vue-gutter-resize.css'
 export default {
   name: 'Main',
   data: function (){
@@ -61,7 +74,8 @@ export default {
       select: "all",
       showCreated: true,
       showUpdated: true,
-      showDestroy: true
+      showDestroy: true,
+      resultHeight: '846px'
     }
   },
   computed: {
@@ -74,9 +88,9 @@ export default {
   methods: {
     clearInput: function (){
       this.input = ""
+      this.resizeBorder()
     },
     showSelected: function (){
-      console.log("debug",this.select)
       if (this.select == "created") {
         this.showCreated = true
         this.showUpdated = false
@@ -94,26 +108,43 @@ export default {
         this.showUpdated = true
         this.showDestroy = true
       }
+      this.resizeBorder()
+    },
+    resizeBorder: function (){
+      setTimeout(this.execResize, "100");
+    },
+    execResize: function (){
+      const dom = this.$refs.right; /* <h1 ref="title">Hello World</h1> */
+      const rect = dom.getBoundingClientRect(); // 要素の座標と幅と高さを取得
+      this.resultHeight = `${rect.height}px`
     }
+  },
+  components: {
+    ColumnGutter
   }
 }
 </script>
 
 <style>
+body {
+  height: 100%;
+  margin: 0;
+}
+
 div.tf-wrapper {
   display: flex;
   padding: 10px;
+  height: 100%;
 }
 div.tf-input-area {
   min-height: 800px;
-  width: 50%;
-  padding: 0 10px;
+  width: 100%;
+  padding: 0 5px;
   overflow: hidden;
-  resize: horizontal;
 }
 div.result-area {
   min-height: 800px;
-  min-width: 50%;
+  min-width: 100%;
   text-align: left;
 }
 textarea.tf-text-area {
@@ -189,5 +220,9 @@ span.tf-title--update{
 }
 .button-wrapper{
   margin: 0 0 10px 0;
+}
+
+div.gutter-v{
+  transition: all 1s ease 100ms;
 }
 </style>

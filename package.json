@@ -10,7 +10,8 @@
   "dependencies": {
     "bootstrap-vue": "^2.17.3",
     "core-js": "^3.6.5",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "vue-gutter-resize": "^0.10.2"
   },
   "devDependencies": {
     "@babel/polyfill": "^7.11.5",
