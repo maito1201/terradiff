@@ -17,6 +17,9 @@
       <div slot="col-1">
         <div ref="right" style="position:absolute">
           <div class="input-group mb-2 ml-2">
+            <button @click="capture" class="btn btn-outline-info mr-2">
+              screen shot
+            </button>
             <div class="input-group-prepend">
               <div class="input-group-text">show</div>
             </div>
@@ -27,11 +30,18 @@
               <option>destroy</option>
             </select>
           </div>
-          <div class="result-area ml-2" v-html="parsedInput">
+          <div class="result-area" v-html="parsedInput" id='capture'>
           </div>
         </div>
       </div>
     </column-gutter>
+    <div class='capture-wrapper' v-show="this.showCapture" @click.self="hideCapture">
+      <button @click="hideCapture" class="btn btn-danger close-button" v-show="this.showCapture">
+        ×
+      </button>
+      <div id='captured' style="pisition:fixed" @click.self="hideCapture">
+      </div>
+    </div>
   </div>
 </template>
 
@@ -65,6 +75,7 @@ import parseTf from "../service/parsetf.js"
 import sanitizeInput from "../service/sanitizer.js"
 import { ColumnGutter } from 'vue-gutter-resize'
 import 'vue-gutter-resize/dist/vue-gutter-resize.css'
+import html2canvas from 'html2canvas'
 export default {
   name: 'Main',
   data: function (){
@@ -75,7 +86,8 @@ export default {
       showCreated: true,
       showUpdated: true,
       showDestroy: true,
-      resultHeight: '846px'
+      resultHeight: '846px',
+      showCapture: false
     }
   },
   computed: {
@@ -114,10 +126,29 @@ export default {
       setTimeout(this.execResize, "100");
     },
     execResize: function (){
-      const dom = this.$refs.right; /* <h1 ref="title">Hello World</h1> */
-      const rect = dom.getBoundingClientRect(); // 要素の座標と幅と高さを取得
+      const dom = this.$refs.right
+      const rect = dom.getBoundingClientRect();
       this.resultHeight = `${rect.height}px`
-    }
+    },
+    capture: function (){
+      const dom = this.$refs.right;
+      const rect = dom.getBoundingClientRect();
+      html2canvas(
+        document.querySelector("#capture"),
+        {
+          width: rect.width + 20,
+          scrollX: 0,
+          scrollY: -window.scrollY
+        }
+      ).then(canvas => {
+        document.getElementById('captured').appendChild(canvas)
+      });
+      this.showCapture = true;
+    },
+    hideCapture: function (){
+      this.showCapture = false;
+      document.getElementById('captured').firstChild.remove()
+    },
   },
   components: {
     ColumnGutter
@@ -186,7 +217,7 @@ pre.tf-title{
 }
 
 div.tf-div {
-  margin: 10px 0;
+  margin: 10px;
   border-radius: 14px;
   overflow: hidden;
   border: solid 4px gray;
@@ -224,5 +255,24 @@ span.tf-title--update{
 
 div.gutter-v{
   transition: all 1s ease 100ms;
+}
+
+div.capture-wrapper{
+  position: fixed;
+  background: #000000d1;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 9999;
+}
+
+button.close-button{
+  position: absolute;
+  left: auto;
+  right: 30px;
+  top: 10px;
 }
 </style>
