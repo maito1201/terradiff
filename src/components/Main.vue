@@ -1,40 +1,31 @@
 <template>
   <div class="tf-wrapper">
-    <column-gutter
-      :column="2"
-      :width="'100vw'"
-      :height="this.resultHeight"
-      :gutter-sizes="['4px', '1rem', '1em']"
-      :colors="['#623ce4']"
-      :column-sizes="[1,1]"
-    >
-      <div slot="col-0" class="tf-input-area form-group">
-        <div class="input-group button-wrapper">
-          <button class="btn btn-outline-info clear-button" @click="clearInput">clear</button>
-        </div>
-        <textarea id="tf-input" class="tf-text-area form-control" v-model="input" @input="resizeBorder" :placeholder="template"></textarea>
+    <div class="tf-input-area form-group" v-show="this.showInputArea">
+      <div class="input-group button-wrapper">
+        <button class="btn btn-outline-info clear-button" @click="clearInput">clear</button>
       </div>
-      <div slot="col-1">
-        <div ref="right" style="position:absolute">
-          <div class="input-group mb-2 ml-2">
-            <button @click="capture" class="btn btn-outline-info mr-2">
-              screen shot
-            </button>
-            <div class="input-group-prepend">
-              <div class="input-group-text">show</div>
-            </div>
-            <select v-model="select" @change="showSelected" class="form-control">
-              <option>all</option>
-              <option>created</option>
-              <option>updated</option>
-              <option>destroy</option>
-            </select>
+      <textarea id="tf-input" class="tf-text-area form-control" v-model="input" :placeholder="template"></textarea>
+    </div>
+    <div>
+      <div ref="right" style="position:absolute">
+        <div class="input-group mb-2 ml-2">
+          <button @click="capture" class="btn btn-outline-info mr-2">
+            screen shot
+          </button>
+          <div class="input-group-prepend">
+            <div class="input-group-text">show</div>
           </div>
-          <div class="result-area" v-html="parsedInput" id='capture'>
-          </div>
+          <select v-model="select" @change="showSelected" class="form-control">
+            <option>all</option>
+            <option>created</option>
+            <option>updated</option>
+            <option>destroy</option>
+          </select>
+        </div>
+        <div class="result-area" v-html="parsedInput" id='capture'>
         </div>
       </div>
-    </column-gutter>
+    </div>
     <div class='capture-wrapper' v-show="this.showCapture" @click.self="hideCapture">
       <button @click="hideCapture" class="btn btn-danger close-button" v-show="this.showCapture">
         ×
@@ -73,8 +64,6 @@ const TEMPLATE =
     }`
 import parseTf from "../service/parsetf.js"
 import sanitizeInput from "../service/sanitizer.js"
-import { ColumnGutter } from 'vue-gutter-resize'
-import 'vue-gutter-resize/dist/vue-gutter-resize.css'
 import html2canvas from 'html2canvas'
 export default {
   name: 'Main',
@@ -86,8 +75,8 @@ export default {
       showCreated: true,
       showUpdated: true,
       showDestroy: true,
-      resultHeight: '846px',
-      showCapture: false
+      showCapture: false,
+      showInputArea: true,
     }
   },
   computed: {
@@ -100,7 +89,6 @@ export default {
   methods: {
     clearInput: function (){
       this.input = ""
-      this.resizeBorder()
     },
     showSelected: function (){
       if (this.select == "created") {
@@ -120,23 +108,16 @@ export default {
         this.showUpdated = true
         this.showDestroy = true
       }
-      this.resizeBorder()
-    },
-    resizeBorder: function (){
-      setTimeout(this.execResize, "100");
-    },
-    execResize: function (){
-      const dom = this.$refs.right
-      const rect = dom.getBoundingClientRect();
-      this.resultHeight = `${rect.height}px`
     },
     capture: function (){
+      window.scrollTo(0, 0);
+      this.showInputArea = false;
       const dom = this.$refs.right;
       const rect = dom.getBoundingClientRect();
       html2canvas(
         document.querySelector("#capture"),
         {
-          width: rect.width + 20,
+          width: rect.width + 15,
           scrollX: 0,
           scrollY: -window.scrollY
         }
@@ -146,12 +127,10 @@ export default {
       this.showCapture = true;
     },
     hideCapture: function (){
+      this.showInputArea = true;
       this.showCapture = false;
       document.getElementById('captured').firstChild.remove()
     },
-  },
-  components: {
-    ColumnGutter
   }
 }
 </script>
@@ -169,13 +148,15 @@ div.tf-wrapper {
 }
 div.tf-input-area {
   min-height: 800px;
-  width: 100%;
+  width: 50%;
   padding: 0 5px;
   overflow: hidden;
+  resize: both;
 }
+
 div.result-area {
   min-height: 800px;
-  min-width: 100%;
+  min-width: 50%;
   text-align: left;
 }
 textarea.tf-text-area {
@@ -183,6 +164,7 @@ textarea.tf-text-area {
   min-height: 800px;
   max-height: 95%;
   overflow: hidden;
+  resize: none;
 }
 
 pre.tf-result{
@@ -251,10 +233,6 @@ span.tf-title--update{
 }
 .button-wrapper{
   margin: 0 0 10px 0;
-}
-
-div.gutter-v{
-  transition: all 1s ease 100ms;
 }
 
 div.capture-wrapper{
