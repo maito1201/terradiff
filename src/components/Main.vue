@@ -20,6 +20,7 @@
             <option>created</option>
             <option>updated</option>
             <option>destroy</option>
+            <option>other</option>
           </select>
         </div>
         <div class="result-area" v-html="parsedInput" id='capture'>
@@ -61,7 +62,14 @@ const TEMPLATE =
       - id                  = "1" -> null
       - name                = "my-something" -> null
       - tags                = {} -> null
-    }`
+    }
+
+# aws_something_to_replace must be replaced
+  -/+ resource "aws_something" "my_something" {
+      ~ ami                 = "ami-123456" -> "ami-987654" # forces replacement
+      ~ id                  = "i-123456" -> (known after apply)
+  }
+`
 import parseTf from "../service/parsetf.js"
 import sanitizeInput from "../service/sanitizer.js"
 import html2canvas from 'html2canvas'
@@ -75,15 +83,16 @@ export default {
       showCreated: true,
       showUpdated: true,
       showDestroy: true,
+      showOther: true,
       showCapture: false,
       showInputArea: true,
     }
   },
   computed: {
     parsedInput: function (){
-      if (this.input == "") return parseTf(TEMPLATE, this.showCreated, this.showUpdated, this.showDestroy)
+      if (this.input == "") return parseTf(TEMPLATE, this.showCreated, this.showUpdated, this.showDestroy, this.showOther)
       const sanitized = sanitizeInput(this.input)
-      return parseTf(sanitized, this.showCreated, this.showUpdated, this.showDestroy)
+      return parseTf(sanitized, this.showCreated, this.showUpdated, this.showDestroy, this.showOther)
     }
   },
   methods: {
@@ -95,18 +104,27 @@ export default {
         this.showCreated = true
         this.showUpdated = false
         this.showDestroy = false
+        this.showOther = false
       } else if (this.select == "updated") {
         this.showCreated = false
         this.showUpdated = true
         this.showDestroy = false
+        this.showOther = false
       } else if (this.select == "destroy") {
         this.showCreated = false
         this.showUpdated = false
         this.showDestroy = true
+        this.showOther = false
+      } else if (this.select == "other") {
+        this.showCreated = false
+        this.showUpdated = false
+        this.showDestroy = false
+        this.showOther = true
       } else {
         this.showCreated = true
         this.showUpdated = true
         this.showDestroy = true
+        this.showOther = true
       }
     },
     capture: function (){
@@ -163,7 +181,7 @@ textarea.tf-text-area {
   height: 100%;
   min-height: 800px;
   max-height: 95%;
-  overflow: hidden;
+  overflow: scroll;
   resize: none;
 }
 
